@@ -1,4 +1,29 @@
 
+dispatch2 <- function(generic, x, y, env = caller_env(2)) {
+  classes <- sort.int(c(class(x), class(y)), method = "radix")
+  c1 <- classes[[1]]
+  c2 <- classes[[2]]
+
+  while (!is_empty_env(env)) {
+    table <- binary_table(env)
+
+    if (!is_null(table)) {
+      fn <- table[[generic]][[c1]][[c2]]
+
+      if (!is_null(fn)) {
+        call <- sys.call(sys.parent(1L))
+        frame <- sys.frame(sys.parent(2L))
+        node_poke_car(call, fn)
+        return(eval_bare(call, frame))
+      }
+    }
+
+    env <- env_parent(env)
+  }
+
+  abort(sprintf("Can't find a `%s()` method for `%s` and `%s`", generic, c1, c2))
+}
+
 def_method2 <- function(.class1, .class2, ..., .env = caller_env()) {
   stopifnot(
     is_string(.class1),

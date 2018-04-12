@@ -28,3 +28,27 @@ test_that("redefining a method warns", {
   expect_identical(table$mtd$c1$c2, m2)
   expect_identical(table$mtd$c1$c3, m2)
 })
+
+test_that("dispatch2() finds methods", {
+  def_method2("character", "integer", fn = function(x, y) stop("wrong!"))
+  def_method2("numeric", "integer", fn = function(x, y) "dispatched!")
+
+  fn <- function(x, y) dispatch2("fn", x, y)
+  expect_identical(fn(1, 2L), "dispatched!")
+  expect_identical(local(fn(1L, 2)), "dispatched!")
+
+  env <- env()
+  with_env(env, def_method2("character", "integer", fn = function(x, y) "dispatched!"))
+  expect_identical(with_env(env, fn("foo", 2L)), "dispatched!")
+  expect_error(fn("foo", 2L), "wrong!")
+})
+
+test_that("dispatch2() passes all arguments", {
+  def_method2("numeric", "numeric", fn = function(x, y) NULL)
+
+  fn <- function(x, y, ..., z) dispatch2("fn", x, y)
+  expect_error(fn(1, 2, 3, 4), "unused arguments")
+
+  expect_warning(def_method2("numeric", "numeric", fn = function(x, y, ..., z) list(..., x = x, y = y, z = z)))
+  expect_identical(fn(1, 2, 3, z = 4, foo = 5), list(3, foo = 5, x = 1, y = 2, z = 4))
+})
