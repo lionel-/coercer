@@ -8,10 +8,7 @@ dispatch2 <- function(generic, x, y, env = caller_env(2)) {
 
   call <- sys.call(sys.parent(1L))
   node_poke_car(call, fn)
-
-  # Isn't this the same as `env`?
-  frame <- sys.frame(sys.parent(2L))
-  eval_bare(call, frame)
+  eval_bare(call, env)
 }
 
 get_method2 <- function(generic, x, y, env = caller_env(2)) {
