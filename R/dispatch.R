@@ -14,14 +14,15 @@ dispatch2 <- function(generic, x, y, env = caller_env(2)) {
         call <- sys.call(sys.parent(1L))
         frame <- sys.frame(sys.parent(2L))
 
-        frame$.dispatched <- new_list(2L, names = classes)
+        dispatched <- new_list(2L, names = classes)
         if (c1 == class(x)) {
-          frame$.dispatched[[c1]] <- x
-          frame$.dispatched[[c2]] <- y
+          dispatched[[c1]] <- x
+          dispatched[[c2]] <- y
         } else {
-          frame$.dispatched[[c1]] <- y
-          frame$.dispatched[[c2]] <- x
+          dispatched[[c1]] <- y
+          dispatched[[c2]] <- x
         }
+        environment(fn) <- env(environment(fn), .dispatched = dispatched)
 
         node_poke_car(call, fn)
         return(eval_bare(call, frame))

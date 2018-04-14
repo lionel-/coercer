@@ -54,16 +54,21 @@ test_that("dispatch2() passes all arguments", {
 })
 
 test_that("dispatch2() defines `.dispatched` pronoun", {
-  fn <- function(x, y) dispatch2("fn", x, y)
-
-  def_method2("character", "integer", fn = function(x, y) {
-    chr <- .dispatched$character
-    int <- .dispatched$integer
-    list(chr = chr, int = int)
+  env <- local({
+    def_method2("character", "integer", fn = function(x, y) {
+      chr <- .dispatched$character
+      int <- .dispatched$integer
+      list(chr = chr, int = int)
+    })
+    current_env()
   })
+
+  fn <- function(x, y) dispatch2("fn", x, y, env = env)
 
   expect_identical(fn("foo", 1L), list(chr = "foo", int = 1L))
   expect_identical(fn(1L, "foo"), list(chr = "foo", int = 1L))
+
+  expect_false(env_has(current_env(), ".dispatched"))
 })
 
 test_that("caller environment of methods is the caller of the generic", {
