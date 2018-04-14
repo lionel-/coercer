@@ -65,3 +65,12 @@ test_that("dispatch2() defines `.dispatched` pronoun", {
   expect_identical(fn("foo", 1L), list(chr = "foo", int = 1L))
   expect_identical(fn(1L, "foo"), list(chr = "foo", int = 1L))
 })
+
+test_that("caller environment of methods is the caller of the generic", {
+  fn <- function(...) dispatch2("fn", ...)
+  def_method2("character", "integer", fn = function(...) parent.frame())
+
+  g <- function() list(fn(1L, "foo"), current_env())
+  frames <- g()
+  expect_identical(frames[[1]], frames[[2]])
+})
