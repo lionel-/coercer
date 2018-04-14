@@ -1,8 +1,6 @@
 
 dispatch2 <- function(generic, x, y, env = caller_env(2)) {
-  input_c1 <- class(x)
-  input_c2 <- class(y)
-  classes <- sort.int(c(input_c1, input_c2), method = "radix")
+  classes <- sort.int(c(class(x), class(y)), method = "radix")
   c1 <- classes[[1]]
   c2 <- classes[[2]]
 
@@ -10,20 +8,21 @@ dispatch2 <- function(generic, x, y, env = caller_env(2)) {
     table <- binary_table(env)
 
     if (!is_null(table)) {
-      fn <- table[[generic]][[c1]][[c2]][["mtd"]]
+      fn <- table[[generic]][[c1]][[c2]]
 
       if (!is_null(fn)) {
-        flipped_def <- table[[generic]][[c1]][[c2]][["flipped"]]
-        flipped_args <- input_c1 != c1
-        if (flipped_def + flipped_args == 1L) {
-          fmls <- formals(fn)
-          stopifnot(length(fmls) >= 2L)
-          names(fmls)[1:2] <- names(fmls[2:1])
-          formals(fn) <- fmls
-        }
-
         call <- sys.call(sys.parent(1L))
         frame <- sys.frame(sys.parent(2L))
+
+        frame$.dispatched <- new_list(2L, names = classes)
+        if (c1 == class(x)) {
+          frame$.dispatched[[c1]] <- x
+          frame$.dispatched[[c2]] <- y
+        } else {
+          frame$.dispatched[[c1]] <- y
+          frame$.dispatched[[c2]] <- x
+        }
+
         node_poke_car(call, fn)
         return(eval_bare(call, frame))
       }
@@ -71,12 +70,8 @@ def_method2 <- function(.class1, .class2, ..., .env = caller_env()) {
     } else if (!is_null(mtd[[c1]][[c2]])) {
       warn(sprintf("Overriding method `%s()` for classes `%s` and `%s`", name, c1, c2))
     }
-    if (is_null(mtd[[c1]][[c2]])) {
-      mtd[[c1]][[c2]] <- list()
-    }
 
-    mtd[[c1]][[c2]][["mtd"]] <- methods[[name]]
-    mtd[[c1]][[c2]][["flipped"]] <- c1 != .class1
+    mtd[[c1]][[c2]] <- methods[[name]]
   }
 
   invisible(methods)
