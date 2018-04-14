@@ -88,3 +88,15 @@ test_that("can retrieve method with get_method2()", {
   expect_identical(set_env(out), exp)
   expect_identical(get_env(out)$.dispatched, list(character = "foo", integer = 1L))
 })
+
+test_that("can retrieve method with get_bare_method2()", {
+  exp_mtd <- function(...) "fn"
+  def_method2("integer", "character", fn = exp_mtd)
+  exp <- list(classes = c("character", "integer"), method = exp_mtd)
+  expect_identical(get_method2_info("fn", "integer", "character"), exp)
+})
+
+test_that("get_bare_method2() fails when class has length zero", {
+  expect_error(get_method2_info("foo", "bar", chr()), "not have length")
+  expect_error(get_method2_info("foo", NULL, "bar"), "not have length")
+})

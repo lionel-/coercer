@@ -1,5 +1,5 @@
 
-dispatch2 <- function(generic, x, y, env = caller_env(2)) {
+dispatch2 <- function(generic, x, y, env = caller_env(2L)) {
   fn <- get_method2(generic, x, y, env)
 
   if (is_null(fn)) {
@@ -11,8 +11,36 @@ dispatch2 <- function(generic, x, y, env = caller_env(2)) {
   eval_bare(call, env)
 }
 
-get_method2 <- function(generic, x, y, env = caller_env(2)) {
-  classes <- sort.int(c(class(x), class(y)), method = "radix")
+get_method2 <- function(generic, x, y, env = caller_env()) {
+  c1 <- class(x)
+  c2 <- class(y)
+  info <- get_method2_info(generic, c1, c2, env)
+
+  if (is_null(info)) {
+    return(NULL)
+  }
+
+  dispatched <- new_list(2L, names = info$classes)
+
+  if (c1 == class(x)[[1]]) {
+    dispatched[[c1]] <- x
+    dispatched[[c2]] <- y
+  } else {
+    dispatched[[c1]] <- y
+    dispatched[[c2]] <- x
+  }
+
+  fn <- info$method
+  environment(fn) <- env(environment(fn), .dispatched = dispatched)
+  fn
+}
+
+get_method2_info <- function(generic, c1, c2, env = caller_env()) {
+  if (!length(c1) || !length(c2)) {
+    abort("Object class does not have length")
+  }
+
+  classes <- sort.int(c(c1[[1]], c2[[1]]), method = "radix")
   c1 <- classes[[1]]
   c2 <- classes[[2]]
 
@@ -23,16 +51,7 @@ get_method2 <- function(generic, x, y, env = caller_env(2)) {
       fn <- table[[generic]][[c1]][[c2]]
 
       if (!is_null(fn)) {
-        dispatched <- new_list(2L, names = classes)
-        if (c1 == class(x)) {
-          dispatched[[c1]] <- x
-          dispatched[[c2]] <- y
-        } else {
-          dispatched[[c1]] <- y
-          dispatched[[c2]] <- x
-        }
-        environment(fn) <- env(environment(fn), .dispatched = dispatched)
-        return(fn)
+        return(list(classes = classes, method = fn))
       }
     }
 
