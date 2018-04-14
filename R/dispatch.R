@@ -1,5 +1,20 @@
 
 dispatch2 <- function(generic, x, y, env = caller_env(2)) {
+  fn <- get_method2(generic, x, y, env)
+
+  if (is_null(fn)) {
+    abort(sprintf("Can't find a `%s()` method for `%s` and `%s`", generic, c1, c2))
+  }
+
+  call <- sys.call(sys.parent(1L))
+  node_poke_car(call, fn)
+
+  # Isn't this the same as `env`?
+  frame <- sys.frame(sys.parent(2L))
+  eval_bare(call, frame)
+}
+
+get_method2 <- function(generic, x, y, env = caller_env(2)) {
   classes <- sort.int(c(class(x), class(y)), method = "radix")
   c1 <- classes[[1]]
   c2 <- classes[[2]]
@@ -11,9 +26,6 @@ dispatch2 <- function(generic, x, y, env = caller_env(2)) {
       fn <- table[[generic]][[c1]][[c2]]
 
       if (!is_null(fn)) {
-        call <- sys.call(sys.parent(1L))
-        frame <- sys.frame(sys.parent(2L))
-
         dispatched <- new_list(2L, names = classes)
         if (c1 == class(x)) {
           dispatched[[c1]] <- x
@@ -23,16 +35,12 @@ dispatch2 <- function(generic, x, y, env = caller_env(2)) {
           dispatched[[c2]] <- x
         }
         environment(fn) <- env(environment(fn), .dispatched = dispatched)
-
-        node_poke_car(call, fn)
-        return(eval_bare(call, frame))
+        return(fn)
       }
     }
 
     env <- env_parent(env)
   }
-
-  abort(sprintf("Can't find a `%s()` method for `%s` and `%s`", generic, c1, c2))
 }
 
 def_method2 <- function(.class1, .class2, ..., .env = caller_env()) {

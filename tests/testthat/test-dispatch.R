@@ -79,3 +79,12 @@ test_that("caller environment of methods is the caller of the generic", {
   frames <- g()
   expect_identical(frames[[1]], frames[[2]])
 })
+
+test_that("can retrieve method with get_method2()", {
+  exp <- function(...) "fn"
+  def_method2("character", "integer", fn = exp)
+  out <- get_method2("fn", 1L, "foo")
+
+  expect_identical(set_env(out), exp)
+  expect_identical(get_env(out)$.dispatched, list(character = "foo", integer = 1L))
+})
