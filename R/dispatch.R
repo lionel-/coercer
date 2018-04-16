@@ -3,6 +3,8 @@ dispatch2 <- function(generic, x, y, env = caller_env(2L)) {
   fn <- get_method2(generic, x, y, env)
 
   if (is_null(fn)) {
+    c1 <- class(x)[[1]]
+    c2 <- class(y)[[1]]
     abort(sprintf("Can't find a `%s()` method for `%s` and `%s`", generic, c1, c2))
   }
 
