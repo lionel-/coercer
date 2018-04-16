@@ -46,19 +46,39 @@ get_method2_info <- function(generic, c1, c2, env = caller_env()) {
   c1 <- classes[[1]]
   c2 <- classes[[2]]
 
+  wildcards <- list()
+
   while (!is_empty_env(env)) {
     table <- binary_table(env)
 
     if (!is_null(table)) {
-      fn <- table[[generic]][[c1]][[c2]]
+      gen_table <- table[[generic]]
+      fn <- gen_table[[c1]][[c2]]
 
       if (!is_null(fn)) {
-        return(list(classes = classes, method = fn))
+        return(new_method_info(classes, fn))
+      }
+
+      star <- gen_table[["*"]]
+      if (!is_null(star)) {
+        already_found <- names(star) %in% names(wildcards)
+        wildcards <- c(wildcards, star[!already_found])
       }
     }
 
     env <- env_parent(env)
   }
+
+  fn <- wildcards[["*"]]
+  if (!is_null(fn)) {
+    return(new_method_info(classes, fn))
+  }
+
+  NULL
+}
+
+new_method_info <- function(classes, method) {
+  list(classes = classes, method = method)
 }
 
 def_method2 <- function(.class1, .class2, ..., .env = caller_env()) {
