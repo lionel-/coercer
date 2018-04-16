@@ -112,3 +112,9 @@ test_that("can dispatch on wildcard as last resort", {
   def_method2("*", "*", fn = function(x, y, ...) "dispatched!")
   expect_identical(dispatch2("fn", chr(), int(), current_env()), "dispatched!")
 })
+
+test_that("dispatch2_() forwards arguments manually", {
+  def_method2("numeric", "integer", fn = function(x, y, ...) list(x, y, ...))
+  out <- dispatch2_("fn", 1, 2L, foo = "bar", .env = current_env())
+  expect_identical(out, list(1, 2L, foo = "bar"))
+})

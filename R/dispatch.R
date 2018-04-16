@@ -1,16 +1,23 @@
 
 dispatch2 <- function(generic, x, y, env = caller_env(2L)) {
   fn <- get_method2(generic, x, y, env)
+  check_dispatch(fn, generic, x, y)
 
+  call <- sys.call(sys.parent(1L))
+  node_poke_car(call, fn)
+  eval_bare(call, env)
+}
+dispatch2_ <- function(.generic, .x, .y, ..., .env) {
+  fn <- get_method2(.generic, .x, .y, .env)
+  check_dispatch(fn, .generic, .x, .y)
+  fn(.x, .y, ...)
+}
+check_dispatch <- function(fn, generic, x, y) {
   if (is_null(fn)) {
     c1 <- class(x)[[1]]
     c2 <- class(y)[[1]]
     abort(sprintf("Can't find a `%s()` method for `%s` and `%s`", generic, c1, c2))
   }
-
-  call <- sys.call(sys.parent(1L))
-  node_poke_car(call, fn)
-  eval_bare(call, env)
 }
 
 get_method2 <- function(generic, x, y, env = caller_env()) {
