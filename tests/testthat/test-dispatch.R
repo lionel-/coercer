@@ -121,3 +121,16 @@ test_that("dispatch2_() forwards arguments manually", {
   out <- dispatch2_("fn", 1, 2L, foo = "bar", .env = current_env())
   expect_identical(out, list(1, 2L, foo = "bar"))
 })
+
+test_that("lookup from namespace stops at the global env", {
+  fn <- function() NULL
+  def_method2("NULL", "NULL", .env = global_env(), fn = fn)
+
+  expect_equal(get_method2("fn", NULL, NULL, global_env()), fn)
+  expect_equal(get_method2("fn", NULL, NULL, env(global_env())), fn)
+
+  expect_null(get_method2("fn", NULL, NULL, ns_env("coercer")))
+  expect_null(get_method2("fn", NULL, NULL, env(ns_env("coercer"))))
+
+  env_unbind(global_env(), binary_table_name)
+})

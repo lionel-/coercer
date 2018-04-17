@@ -170,8 +170,16 @@ get_method2_info <- function(generic, class1, class2, env = caller_env()) {
   class2 <- classes[[2]]
 
   wildcards <- list()
+  was_namespace <- FALSE
 
   while (!is_empty_env(env)) {
+    # Break search at the global env if lookup from a namespace
+    if (is_namespace(env)) {
+      was_namespace <- TRUE
+    } else if (was_namespace && is_reference(env, global_env())) {
+      break
+    }
+
     table <- binary_table(env)
 
     if (!is_null(table)) {
