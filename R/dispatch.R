@@ -46,6 +46,7 @@
 #' @param .class1,.class2 Classes to define methods on. Must be length
 #'   1 strings.
 #'
+#' @seealso [get_method2()]
 #' @export
 #' @examples
 #' is_congruent <- function(x, y) {
@@ -127,6 +128,14 @@ check_dispatch <- function(fn, generic, x, y) {
   }
 }
 
+#' Select a binary method
+#'
+#' This retrieves the method selected by binary dispatch without
+#' calling it. The arguments dispatched on are stored in the
+#' `.dispatched` pronoun.
+#'
+#' @inheritParams dispatch2
+#' @export
 get_method2 <- function(generic, x, y, env = caller_env()) {
   c1 <- class(x)
   c2 <- class(y)
