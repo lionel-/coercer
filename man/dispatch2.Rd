@@ -93,8 +93,8 @@ is_congruent(f, factor(c("bar", "foo")))
 
 
 # While there is no inheritance of methods with binary dispatch, you
-# can define a default method with the wildcard "*":
-def_method2("*", "*",
+# can define a default method with the whichever() wildcard:
+def_method2(whichever(), whichever(),
   is_congruent = function(x, y, ...) {
     message("Don't know how to determine congruence")
     FALSE
