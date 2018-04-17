@@ -96,7 +96,7 @@ is_congruent(f, factor(c("bar", "foo")))
 # can define a default method with the wildcard "*":
 def_method2("*", "*",
   is_congruent = function(x, y, ...) {
-    inform("Don't know how to determine congruence")
+    message("Don't know how to determine congruence")
     FALSE
   }
 )
@@ -110,7 +110,7 @@ equals <- function(x, y) {
 
 def_method2("integer", "numeric",
   is_congruent = function(x, y, ...) {
-    is_integerish(.dispatched$numeric)
+    rlang::is_integerish(.dispatched$numeric)
   },
   equals = function(x, y, ...) {
     all(x == y)
