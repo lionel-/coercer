@@ -80,8 +80,8 @@
 #'
 #'
 #' # While there is no inheritance of methods with binary dispatch, you
-#' # can define a default method with the wildcard "*":
-#' def_method2("*", "*",
+#' # can define a default method with the whichever() wildcard:
+#' def_method2(whichever(), whichever(),
 #'   is_congruent = function(x, y, ...) {
 #'     message("Don't know how to determine congruence")
 #'     FALSE
@@ -253,4 +253,15 @@ binary_table_name <- ".__rlang_binary_strict_methods__."
 
 binary_table <- function(env) {
   env[[binary_table_name]]
+}
+
+#' Wildcard type
+#'
+#' Use `whichever()` when the type does not matter.
+#'
+#' @export
+#' @examples
+#' def_method2(whichever(), whichever(), fn = function(x, y) "foo")
+whichever <- function() {
+  "*"
 }

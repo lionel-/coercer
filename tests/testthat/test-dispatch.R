@@ -111,6 +111,9 @@ test_that("dispatch2() fails if no methods could be found", {
 test_that("can dispatch on wildcard as last resort", {
   def_method2("*", "*", fn = function(x, y, ...) "dispatched!")
   expect_identical(dispatch2("fn", chr(), int(), current_env()), "dispatched!")
+
+  def_method2(whichever(), whichever(), fn2 = function(x, y, ...) "dispatched!")
+  expect_identical(dispatch2("fn2", chr(), int(), current_env()), "dispatched!")
 })
 
 test_that("dispatch2_() forwards arguments manually", {
