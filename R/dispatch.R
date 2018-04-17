@@ -1,4 +1,109 @@
-
+#' Binary dispatch
+#'
+#' @description
+#'
+#' `dispatch2()` dispatches to binary methods defined with
+#' `def_method2()` based on the classes of `x` and `y`.
+#'
+#' * `dispatch2()` is meant to be called within a generic wrapper and
+#'   forwards arguments automatically.
+#'
+#' * `dispatch2_()` with an underscore requires manual forwarding of
+#'   arguments.
+#'
+#' `dispatch2()` is a binary version of [base::UseMethod()].
+#' `def_method2()` has no S3 equivalent but is similar to the S4
+#' operator [methods::setMethod()].
+#'
+#'
+#' @section Semantics:
+#'
+#' * Dispatch is symmetric but not necessarily commutative. The same
+#'   method is always called for two given types (symmetric
+#'   dispatch). However the return value might be different
+#'   (non-commutativity).
+#'
+#' * Method definition is commutative: `def_method2(c1, c2, ...)` is
+#'   equivalent to `def_method2(c2, c1, ...)`. The ordering of the
+#'   method arguments is never changed (and they could be of class
+#'   `c1` or `c2`) but you can access the arguments through the
+#'   `.dispatched` pronoun, e.g. `.dispatched$c1`.
+#'
+#' * Dispatch is lexically scoped. Methods are only looked up in `env`
+#'   and its ancestors. Calling `def_method2()` for a method that
+#'   already exists in an environment gives a warning.
+#'
+#' * Binary dispatch enforces specialisation: no inheritance is
+#'   allowed. However you can specify default methods by supplying the
+#'   `"*"` wildcard as classes.
+#'
+#' @param generic,.generic The name of the generic as a string.
+#' @param x,y,.x,.y Objects to dispatch on.
+#' @param env,.env The environment in which to find or define methods.
+#' @param ... For `def_method2()`, named methods to be defined in
+#'   `.env`. For `dispatch2_()`, further arguments to be passed on to
+#'   the selected method.
+#' @param .class1,.class2 Classes to define methods on. Must be length
+#'   1 strings.
+#'
+#' @export
+#' @examples
+#' is_congruent <- function(x, y) {
+#'   dispatch2("is_congruent", x, y)
+#' }
+#'
+#' # `x` and `y` are as supplied by the user and so could each be a
+#' # factor or a character vector. However we can access these
+#' # arguments through the `.dispatched` pronoun:
+#' def_method2("factor", "character",
+#'   is_congruent = function(x, y, ...) {
+#'     fct <- .dispatched$factor
+#'     chr <- .dispatched$character
+#'     all(chr %in% levels(fct))
+#'   }
+#' )
+#'
+#' # You can also supply a method for objects of the same class:
+#' def_method2("factor", "factor",
+#'   is_congruent = function(x, y, ...) {
+#'     all(levels(x) %in% levels(y))
+#'   }
+#' )
+#'
+#' f <- factor(c("foo", "bar"))
+#' is_congruent(f, "foo")
+#' is_congruent(f, "baz")
+#'
+#' is_congruent(f, factor("bar"))
+#' is_congruent(f, factor(c("bar", "foo")))
+#'
+#'
+#' # While there is no inheritance of methods with binary dispatch, you
+#' # can define a default method with the wildcard "*":
+#' def_method2("*", "*",
+#'   is_congruent = function(x, y, ...) {
+#'     inform("Don't know how to determine congruence")
+#'     FALSE
+#'   }
+#' )
+#' is_congruent("foo", 10)
+#'
+#'
+#' # You can also define several methods at once:
+#' equals <- function(x, y) {
+#'   dispatch2("equals", x, y)
+#' }
+#'
+#' def_method2("integer", "numeric",
+#'   is_congruent = function(x, y, ...) {
+#'     is_integerish(.dispatched$numeric)
+#'   },
+#'   equals = function(x, y, ...) {
+#'     all(x == y)
+#'   }
+#' )
+#'
+#' is_congruent(1:3, c(4, 5))
 dispatch2 <- function(generic, x, y, env = caller_env(2L)) {
   fn <- get_method2(generic, x, y, env)
   check_dispatch(fn, generic, x, y)
@@ -7,6 +112,8 @@ dispatch2 <- function(generic, x, y, env = caller_env(2L)) {
   node_poke_car(call, fn)
   eval_bare(call, env)
 }
+#' @rdname dispatch2
+#' @export
 dispatch2_ <- function(.generic, .x, .y, ..., .env) {
   fn <- get_method2(.generic, .x, .y, .env)
   check_dispatch(fn, .generic, .x, .y)
@@ -88,6 +195,8 @@ new_method_info <- function(classes, method) {
   list(classes = classes, method = method)
 }
 
+#' @rdname dispatch2
+#' @export
 def_method2 <- function(.class1, .class2, ..., .env = caller_env()) {
   stopifnot(
     is_string(.class1),
