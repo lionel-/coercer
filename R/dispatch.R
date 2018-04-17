@@ -44,14 +44,14 @@ get_method2 <- function(generic, x, y, env = caller_env()) {
   fn
 }
 
-get_method2_info <- function(generic, c1, c2, env = caller_env()) {
-  if (!length(c1) || !length(c2)) {
+get_method2_info <- function(generic, class1, class2, env = caller_env()) {
+  if (!length(class1) || !length(class2)) {
     abort("Object class does not have length")
   }
 
-  classes <- sort.int(c(c1[[1]], c2[[1]]), method = "radix")
-  c1 <- classes[[1]]
-  c2 <- classes[[2]]
+  classes <- sort.int(c(class1[[1]], class2[[1]]), method = "radix")
+  class1 <- classes[[1]]
+  class2 <- classes[[2]]
 
   wildcards <- list()
 
@@ -60,7 +60,7 @@ get_method2_info <- function(generic, c1, c2, env = caller_env()) {
 
     if (!is_null(table)) {
       gen_table <- table[[generic]]
-      fn <- gen_table[[c1]][[c2]]
+      fn <- gen_table[[class1]][[class2]]
 
       if (!is_null(fn)) {
         return(new_method_info(classes, fn))
