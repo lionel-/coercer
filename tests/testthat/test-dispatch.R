@@ -103,7 +103,7 @@ test_that("get_bare_method2() fails when class has length zero", {
 
 test_that("dispatch2() fails if no methods could be found", {
   expect_error(dispatch2("foo", 1, 2, env = current_env()),
-    "Can't find a `foo()` method for `numeric` and `numeric`",
+    "Can't find a `numeric` and `numeric` method for `foo()`",
     fixed = TRUE
   )
 })

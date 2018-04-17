@@ -124,7 +124,7 @@ check_dispatch <- function(fn, generic, x, y) {
   if (is_null(fn)) {
     c1 <- class(x)[[1]]
     c2 <- class(y)[[1]]
-    abort(sprintf("Can't find a `%s()` method for `%s` and `%s`", generic, c1, c2))
+    abort(sprintf("Can't find a `%s` and `%s` method for `%s()`", c1, c2, generic))
   }
 }
 
