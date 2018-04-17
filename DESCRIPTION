@@ -1,0 +1,21 @@
+Package: coercer
+Title: Experimental package for binary dispatch and variadic coercions
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Lionel", "Henry", ,"lionel@rstudio.com", c("aut", "cre")),
+    person("RStudio", role = "cph")
+    )
+Description: What the package does (one paragraph).
+License: GPL-3
+LazyData: true
+ByteCompile: true
+Depends:
+    R (>= 3.1.0)
+Imports:
+    rlang (>= 0.2.0)
+Suggests:
+    testthat (>= 2.0.0),
+    covr
+RoxygenNote: 6.0.1
+Roxygen: list(markdown = TRUE)
+BugReports: https://github.com/lionel-/coercer/issues
