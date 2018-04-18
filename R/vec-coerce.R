@@ -40,7 +40,7 @@ vec_coerce <- function(from, to) {
 NULL
 
 
-for (type in c("logical", "integer", "numeric", "list")) {
+for (type in c("logical", "integer", "numeric", "list", "NULL")) {
   def_method2(type, type,
     vec_coerce = function(from, to, ...) {
       from
@@ -122,7 +122,7 @@ def_method2("factor", "factor",
 )
 
 
-### Default coercion to list()
+### Default coercions
 
 # Requires `[[` and `length()`method
 def_method2(whichever(), whichever(),
@@ -147,6 +147,17 @@ def_method2(whichever(), whichever(),
   }
 )
 
+# `NULL` upcoerces to an empty whichever type.
+# Relies on `vec[0]` semantics.
+def_method2("NULL", whichever(),
+  vec_coerce = function(from, to, ...) {
+    if (is_null(from)) {
+      .dispatched[[whichever()]][0]
+    } else {
+      from
+    }
+  }
+)
 
 #' Muffle vector coercion warnings
 #'

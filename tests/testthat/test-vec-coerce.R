@@ -78,3 +78,9 @@ test_that("can coerce list to list", {
   expect_identical(vec(list(), list()), list())
   expect_identical(vec(list(1, 2), list(3L)), list(1, 2, 3L))
 })
+
+test_that("can coerce NULL to anything", {
+  expect_null(vec_coerce(NULL, NULL))
+  expect_identical(vec_coerce(NULL, 1L), int())
+  expect_identical(vec_coerce(1L, NULL), 1L)
+})
