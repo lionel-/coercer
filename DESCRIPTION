@@ -27,3 +27,4 @@ Collate:
     'dispatch.R'
     'utils.R'
     'vec-coerce.R'
+    'vec.R'
