@@ -42,11 +42,6 @@ NULL
 
 ### Numeric coercions
 
-def_method2("logical", "logical",
-  vec_coerce = function(from, to, ...) {
-    from
-  }
-)
 def_method2("logical", "integer",
   vec_coerce = function(from, to, ...) {
     vec_coerce_bare(from, "integer")
@@ -57,23 +52,19 @@ def_method2("logical", "numeric",
     vec_coerce_bare(from, "numeric")
   }
 )
-
-def_method2("integer", "integer",
-  vec_coerce = function(from, to, ...) {
-    from
-  }
-)
 def_method2("integer", "numeric",
   vec_coerce = function(from, to, ...) {
     vec_coerce_bare(from, "numeric")
   }
 )
 
-def_method2("numeric", "numeric",
-  vec_coerce = function(from, to, ...) {
-    from
-  }
-)
+for (type in c("logical", "integer", "numeric")) {
+  def_method2(type, type,
+    vec_coerce = function(from, to, ...) {
+      from
+    }
+  )
+}
 
 
 ### Character coercions
