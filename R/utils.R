@@ -4,5 +4,7 @@ is_empty_env <- function(env) {
 }
 
 vec_coerce_bare <- function(x, type) {
-  rlang:::vec_coerce(x, type)
+  # Unexported wrapper around Rf_coerceVector()
+  coerce <- env_get(ns_env("rlang"), "vec_coerce")
+  coerce(x, type)
 }
