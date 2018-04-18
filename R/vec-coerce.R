@@ -115,3 +115,28 @@ def_method2("factor", "factor",
     factor(from, levels(fct))
   }
 )
+
+
+### Default coercion to list()
+
+# Requires `[[` and `length()`method
+def_method2(whichever(), whichever(),
+  vec_coerce = function(from, to, ...) {
+    if (!is_vector(from) || !is_vector(to)) {
+      abort("Can't coerce a non-vector object to a list")
+    }
+    warn(sprintf("Coercing `%s` to `list`", class(from)[[1]]))
+
+    if (is_bare_vector(from)) {
+      return(vec_coerce_bare(from, "list"))
+    }
+
+    n <- length(from)
+    vec <- new_list(n, names = names(from))
+    for (i in seq_len(n)) {
+      vec[[i]] <- from[[i]]
+    }
+
+    vec
+  }
+)

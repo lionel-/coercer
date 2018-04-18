@@ -54,3 +54,11 @@ test_that("character types are coerced", {
     "incompatible levels"
   )
 })
+
+test_that("incompatible vectors coerce to list by default", {
+  expect_warning(expect_identical(vec_coerce(1:3, list()), as.list(1:3)), "`integer` to `list`")
+  expect_warning(expect_identical(vec_coerce(1:3, chr()), as.list(1:3)), "`integer` to `list`")
+
+  foobar <- factor(c("foo", "bar"))
+  expect_warning(expect_identical(vec_coerce(foobar, int()), list(foobar[1], foobar[2])), "`factor` to `list`")
+})
