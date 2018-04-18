@@ -137,22 +137,24 @@ check_dispatch <- function(fn, generic, x, y) {
 #' @inheritParams dispatch2
 #' @export
 get_method2 <- function(generic, x, y, env = caller_env()) {
-  c1 <- class(x)
-  c2 <- class(y)
-  info <- get_method2_info(generic, c1, c2, env)
-
+  info <- get_method2_info(generic, class(x), class(y), env)
   if (is_null(info)) {
     return(NULL)
   }
 
-  dispatched <- new_list(2L, names = info$classes)
+  dispatched <- list()
+  class1 <- info$classes[[1]]
+  class2 <- info$classes[[2]]
 
-  if (c1 == class(x)[[1]]) {
-    dispatched[[c1]] <- x
-    dispatched[[c2]] <- y
+  # Permute classes if needed. Use `[` rather than `[[` because `x`
+  # or `y` might be NULL. Check for both `c1` and `c2` because one of
+  # those might be "*"
+  if (class1 == class(x)[[1]] || class2 == class(y)[[1]]) {
+    dispatched[class1] <- list(x)
+    dispatched[class2] <- list(y)
   } else {
-    dispatched[[c1]] <- y
-    dispatched[[c2]] <- x
+    dispatched[class1] <- list(y)
+    dispatched[class2] <- list(x)
   }
 
   fn <- info$method
@@ -207,9 +209,11 @@ get_method2_info <- function(generic, class1, class2, env = caller_env()) {
       msg <- "Ambiguous `whichever()` methods for classes `%s` and `%s`"
       abort(sprintf(msg, class1, class2))
     }
+    classes[[2]] <- whichever()
     return(new_method_info(classes, star_c1))
   }
   if (!is_null(star_c2)) {
+    classes[[1]] <- whichever()
     return(new_method_info(classes, star_c1))
   }
 

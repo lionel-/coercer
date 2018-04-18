@@ -141,6 +141,12 @@ test_that("can register wildcard methods", {
   expect_identical(dispatch2_("fn", int(), NULL, .env = current_env()), "dispatched!")
 })
 
+test_that(".dispatched can contain NULL", {
+  def_method2("NULL", whichever(), fn = function(x, y, ...) .dispatched)
+  dispatched <- dispatch2_("fn", NULL, int(), .env = current_env())
+  expect_identical(dispatched, list(`NULL` = NULL, `*` = int()))
+})
+
 test_that("dispatch fails with ambiguous wildcard methods", {
   def_method2("NULL", whichever(), fn = function(x, y, ...) "null!")
   def_method2("integer", whichever(), fn = function(x, y, ...) "int!")
