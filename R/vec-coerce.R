@@ -70,3 +70,48 @@ def_method2("numeric", "numeric",
     from
   }
 )
+
+
+### Character coercions
+
+def_method2("character", "character",
+  vec_coerce = function(from, to, ...) {
+    from
+  }
+)
+
+def_method2("character", "factor",
+  vec_coerce = function(from, to, ...) {
+    chr <- .dispatched$character
+    fct <- .dispatched$factor
+
+    if (!length(chr) || !all(chr %in% levels(fct))) {
+      warn("Coercion of `factor` to `character` loses levels information")
+      return(as.character(from))
+    }
+
+    factor(from, levels(fct))
+  }
+)
+
+def_method2("factor", "factor",
+  vec_coerce = function(from, to, ...) {
+    lvls_from <- levels(from)
+    lvls_to <- levels(to)
+
+    if (!(lvls_from %in% lvls_to) && !(lvls_to %in% lvls_from)) {
+      warn("Coercing `factor` to `character` because of incompatible levels")
+      return(as.character(from))
+    }
+
+    n_from <- length(lvls_from)
+    n_to <- length(lvls_to)
+    if (n_from != n_to) {
+      warn("Factor levels are congruent but not the same length")
+      lvls <- if (n_from > n_to) lvls_from else lvls_to
+      return(factor(from, lvls))
+    }
+
+    factor(from, levels(fct))
+  }
+)
