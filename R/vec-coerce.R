@@ -95,23 +95,22 @@ def_method2("factor", "factor",
     lvls_from <- levels(from)
     lvls_to <- levels(to)
 
-    if (!(lvls_from %in% lvls_to) && !(lvls_to %in% lvls_from)) {
-      msg <- "Coercing `factor` to `character` because of incompatible levels"
-      warn(msg, "rlang_vec_coerce_wng")
-      return(as.character(from))
-    }
+    union <- union(lvls_from, lvls_to)
+    lengths <- c(length(lvls_from), length(lvls_to))
+    congruent <- length(union) == lengths
 
-    n_from <- length(lvls_from)
-    n_to <- length(lvls_to)
-    if (n_from != n_to) {
+    if (all(congruent)) {
+      from
+    } else if (any(congruent)) {
       msg <- "Factor levels are congruent but not the same length"
       warn(msg, "rlang_vec_coerce_wng")
-
-      lvls <- if (n_from > n_to) lvls_from else lvls_to
-      return(factor(from, lvls))
+      lvls <- if (lengths[[1]] > lengths[[2]]) lvls_from else lvls_to
+      factor(from, lvls)
+    } else {
+      msg <- "Coercing `factor` to `character` because of incompatible levels"
+      warn(msg, "rlang_vec_coerce_wng")
+      as.character(from)
     }
-
-    factor(from, levels(fct))
   }
 )
 
