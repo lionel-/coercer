@@ -29,5 +29,8 @@ In some cases however the contents of the vector are necessary to
 determine the appropriate coercion (e.g. the contents of a
 character vector are needed to determine congruence with the
 levels of a factor).
+\item Should warn about dangerous coercions with the class
+\code{"rlang_vec_coerce_wng"} so that coercion warnings can be
+selectively muffled (see \code{\link[=muffle_vec_coerce]{muffle_vec_coerce()}}).
 }
 }

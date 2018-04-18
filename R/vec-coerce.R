@@ -20,6 +20,10 @@
 #'   character vector are needed to determine congruence with the
 #'   levels of a factor).
 #'
+#' * Should warn about dangerous coercions with the class
+#'   `"rlang_vec_coerce_wng"` so that coercion warnings can be
+#'   selectively muffled (see [muffle_vec_coerce()]).
+#'
 #' @param from The vector to coerce. The return value should be a
 #'   vector as long as `from`.
 #' @param to The vector containing the type information to determine
@@ -86,7 +90,8 @@ def_method2("character", "factor",
     fct <- .dispatched$factor
 
     if (!length(chr) || !all(chr %in% levels(fct))) {
-      warn("Coercion of `factor` to `character` loses levels information")
+      msg <- "Coercion of `factor` to `character` loses levels information"
+      warn(msg, "rlang_vec_coerce_wng")
       return(as.character(from))
     }
 
@@ -100,14 +105,17 @@ def_method2("factor", "factor",
     lvls_to <- levels(to)
 
     if (!(lvls_from %in% lvls_to) && !(lvls_to %in% lvls_from)) {
-      warn("Coercing `factor` to `character` because of incompatible levels")
+      msg <- "Coercing `factor` to `character` because of incompatible levels"
+      warn(msg, "rlang_vec_coerce_wng")
       return(as.character(from))
     }
 
     n_from <- length(lvls_from)
     n_to <- length(lvls_to)
     if (n_from != n_to) {
-      warn("Factor levels are congruent but not the same length")
+      msg <- "Factor levels are congruent but not the same length"
+      warn(msg, "rlang_vec_coerce_wng")
+
       lvls <- if (n_from > n_to) lvls_from else lvls_to
       return(factor(from, lvls))
     }
@@ -125,7 +133,8 @@ def_method2(whichever(), whichever(),
     if (!is_vector(from) || !is_vector(to)) {
       abort("Can't coerce a non-vector object to a list")
     }
-    warn(sprintf("Coercing `%s` to `list`", class(from)[[1]]))
+    msg <- sprintf("Coercing `%s` to `list`", class(from)[[1]])
+    warn(msg, "rlang_vec_coerce_wng")
 
     if (is_bare_vector(from)) {
       return(vec_coerce_bare(from, "list"))
@@ -140,3 +149,24 @@ def_method2(whichever(), whichever(),
     vec
   }
 )
+
+
+#' Muffle vector coercion warnings
+#'
+#' Evaluate `expr` with all vector coercion warnings turned off. Other
+#' warnings are not muffled.
+#'
+#' @param expr Expression to evaluate.
+#' @export
+#' @examples
+#' # Coercing incompatible factors is lossy because it returns a
+#' # character vector that has lost the levels information. Use
+#' # muffle_vec_coerce() to silence this kind of warning:
+#' f1 <- factor("foo")
+#' f2 <- factor("bar")
+#' muffle_vec_coerce(vec_coerce(f1, f2))
+muffle_vec_coerce <- function(expr) {
+  withCallingHandlers(expr,
+    rlang_vec_coerce_wng = function(c) invokeRestart("muffleWarning")
+  )
+}

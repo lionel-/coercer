@@ -62,3 +62,14 @@ test_that("incompatible vectors coerce to list by default", {
   foobar <- factor(c("foo", "bar"))
   expect_warning(expect_identical(vec_coerce(foobar, int()), list(foobar[1], foobar[2])), "`factor` to `list`")
 })
+
+test_that("can muffle coercion warnings", {
+  expect_warning(regexp = NA, muffle_vec_coerce({
+    vec_coerce(1L, "foo")
+    vec_coerce("foo", factor("bar"))
+    vec_coerce(factor("foo"), factor("bar"))
+    vec_coerce(factor("foo"), factor(c("foo", "bar")))
+  }))
+
+  expect_warning(muffle_vec_coerce(warn("foo")), "foo")
+})
