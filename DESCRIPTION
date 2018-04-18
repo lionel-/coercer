@@ -21,3 +21,9 @@ Remotes:
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
 BugReports: https://github.com/lionel-/coercer/issues
+Collate: 
+    'coercer.R'
+    'compat-purrr.R'
+    'dispatch.R'
+    'utils.R'
+    'vec-coerce.R'
