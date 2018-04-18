@@ -14,8 +14,8 @@ Depends:
 Imports:
     rlang (>= 0.2.0.9001)
 Suggests:
-    testthat (>= 2.0.0),
-    covr
+    covr,
+    testthat
 Remotes:
     r-lib/rlang
 RoxygenNote: 6.0.1
