@@ -134,3 +134,19 @@ test_that("lookup from namespace stops at the global env", {
 
   env_unbind(global_env(), binary_table_name)
 })
+
+test_that("can register wildcard methods", {
+  def_method2("NULL", whichever(), fn = function(x, y, ...) "dispatched!")
+  expect_identical(dispatch2_("fn", NULL, int(), .env = current_env()), "dispatched!")
+  expect_identical(dispatch2_("fn", int(), NULL, .env = current_env()), "dispatched!")
+})
+
+test_that("dispatch fails with ambiguous wildcard methods", {
+  def_method2("NULL", whichever(), fn = function(x, y, ...) "null!")
+  def_method2("integer", whichever(), fn = function(x, y, ...) "int!")
+  expect_error(
+    dispatch2_("fn", NULL, int(), .env = current_env()),
+    "Ambiguous `whichever()` methods for classes `NULL` and `integer`",
+    fixed = TRUE
+  )
+})
