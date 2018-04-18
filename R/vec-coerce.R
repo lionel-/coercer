@@ -40,6 +40,15 @@ vec_coerce <- function(from, to) {
 NULL
 
 
+for (type in c("logical", "integer", "numeric", "list")) {
+  def_method2(type, type,
+    vec_coerce = function(from, to, ...) {
+      from
+    }
+  )
+}
+
+
 ### Numeric coercions
 
 def_method2("logical", "integer",
@@ -57,14 +66,6 @@ def_method2("integer", "numeric",
     vec_coerce_bare(from, "numeric")
   }
 )
-
-for (type in c("logical", "integer", "numeric")) {
-  def_method2(type, type,
-    vec_coerce = function(from, to, ...) {
-      from
-    }
-  )
-}
 
 
 ### Character coercions

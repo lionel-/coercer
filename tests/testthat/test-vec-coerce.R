@@ -73,3 +73,8 @@ test_that("can muffle coercion warnings", {
 
   expect_warning(muffle_vec_coerce(warn("foo")), "foo")
 })
+
+test_that("can coerce list to list", {
+  expect_identical(vec(list(), list()), list())
+  expect_identical(vec(list(1, 2), list(3L)), list(1, 2, 3L))
+})
