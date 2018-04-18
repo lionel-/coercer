@@ -73,3 +73,17 @@ test_that("vec() ignores NULL elements", {
   )
   expect_identical(vec(NULL, 1L, NULL, 2, NULL, FALSE, NULL), c(1, 2, 0))
 })
+
+test_that("vec() handles NA", {
+  expect_identical(vec(NA, "foo"), c(NA, "foo"))
+  expect_identical(vec(1L, NA), c(1L, NA))
+  expect_identical(vec(factor("foo"), NA), factor(c("foo", NA), levels = "foo"))
+  expect_identical(vec(list(), NA), list(NA))
+})
+
+test_that("`NA` to list() does not warn", {
+  msgs <- catch_warning_msgs(
+    expect_identical(vec(NA, 1L, "foo"), list(NA, 1L, "foo"))
+  )
+  expect_length(msgs, 2)
+})

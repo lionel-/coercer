@@ -124,8 +124,11 @@ check_dispatch <- function(fn, generic, x, y) {
   if (is_null(fn)) {
     c1 <- class(x)[[1]]
     c2 <- class(y)[[1]]
-    abort(sprintf("Can't find a `%s` and `%s` method for `%s()`", c1, c2, generic))
+    abort_dispatch2(generic, c1, c2)
   }
+}
+abort_dispatch2 <- function(generic, c1, c2) {
+  abort(sprintf("Can't find a `%s` and `%s` method for `%s()`", c1, c2, generic))
 }
 
 #' Select a binary method
@@ -214,7 +217,7 @@ get_method2_info <- function(generic, class1, class2, env = caller_env()) {
   }
   if (!is_null(star_c2)) {
     classes[[1]] <- whichever()
-    return(new_method_info(classes, star_c1))
+    return(new_method_info(classes, star_c2))
   }
 
   star_star <- wildcards[["*"]]

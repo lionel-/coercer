@@ -159,6 +159,28 @@ def_method2("NULL", whichever(),
   }
 )
 
+# `NA` is treated generically to upcoerce to whichever type.
+# Relies on `vec[0]` semantics and `[<-`.
+def_method2("logical", whichever(),
+  vec_coerce = function(from, to, ...) {
+    if (!identical(.dispatched$logical, NA)) {
+      classes <- names(.dispathed)
+      abort_dispatch2("vec_coerce", classes[[1]], classes[[2]])
+    }
+    if (!is_logical(from)) {
+      return(from)
+    }
+
+    # FIXME: Do we want `vec[na_int]` instead? This would upcoerce
+    # `NA` to `list(NULL)`: `.dispatched[[whichever()]][na_int]`
+
+    whichever <- .dispatched[[whichever()]][0]
+    whichever[1] <- NA
+    whichever
+  }
+)
+
+
 #' Muffle vector coercion warnings
 #'
 #' Evaluate `expr` with all vector coercion warnings turned off. Other

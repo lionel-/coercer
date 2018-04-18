@@ -41,8 +41,12 @@ vec(foo, foo)
 # of coercions:
 vec(foo, "bar")
 
+# NA is always promoted to whichever type
+fct <- factor(c("foo", "bar"))
+vec(fct, NA)
+
 # Incompatible types are promoted to list in order to preserve
 # information:
 vec(1L, TRUE, "foo")
-vec(factor(c("foo", "bar")), 1L)
+vec(fct, 1L)
 }

@@ -35,10 +35,14 @@
 #' # of coercions:
 #' vec(foo, "bar")
 #'
+#' # NA is always promoted to whichever type
+#' fct <- factor(c("foo", "bar"))
+#' vec(fct, NA)
+#'
 #' # Incompatible types are promoted to list in order to preserve
 #' # information:
 #' vec(1L, TRUE, "foo")
-#' vec(factor(c("foo", "bar")), 1L)
+#' vec(fct, 1L)
 vec <- function(...) {
   xs <- list2(...)
   n <- length(xs)
@@ -80,6 +84,16 @@ vec <- function(...) {
 
 reduce_type <- function(xs, env) {
   muffle_vec_coerce(
-    reduce(xs, function(x, y) dispatch2_("vec_coerce", x[0], y[0], .env = env))
+    reduce(xs, function(x, y) {
+      dispatch2_("vec_coerce", vec_empty(x), vec_empty(y), .env = env)
+    })
   )
+}
+
+vec_empty <- function(x) {
+  if (identical(x, NA)) {
+    NULL
+  } else {
+    x[0]
+  }
 }

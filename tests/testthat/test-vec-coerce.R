@@ -84,3 +84,14 @@ test_that("can coerce NULL to anything", {
   expect_identical(vec_coerce(NULL, 1L), int())
   expect_identical(vec_coerce(1L, NULL), 1L)
 })
+
+test_that("can coerce NA to anything", {
+  expect_identical(vec_coerce(NA, NA), NA)
+  expect_identical(vec_coerce(NA, 1L), na_int)
+  expect_identical(vec_coerce(1L, NA), 1L)
+  expect_identical(vec_coerce(NA, na_dbl), na_dbl)
+  expect_identical(vec_coerce(NA, list()), list(NA))
+  expect_identical(vec_coerce(list(), NA), list())
+  expect_identical(vec_coerce(c(NA, NA), NA), c(NA, NA))
+  expect_warning(expect_identical(vec_coerce(c(NA, NA), "chr"), list(NA, NA)))
+})
