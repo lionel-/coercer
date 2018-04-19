@@ -161,7 +161,10 @@ get_method2 <- function(generic, x, y, env = caller_env()) {
   }
 
   fn <- info$method
-  environment(fn) <- env(environment(fn), .dispatched = dispatched)
+  environment(fn) <- env(environment(fn),
+    .dispatched = dispatched,
+    .dispatch_env = env
+  )
   fn
 }
 

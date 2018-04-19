@@ -95,3 +95,8 @@ test_that("can coerce NA to anything", {
   expect_identical(vec_coerce(c(NA, NA), NA), c(NA, NA))
   expect_warning(expect_identical(vec_coerce(c(NA, NA), "chr"), list(NA, NA)))
 })
+
+test_that("logical/whichever forwards to whichever/whichever", {
+  expect_warning(expect_identical(vec_coerce(TRUE, list()), list(TRUE)), "to `list`")
+  expect_warning(expect_identical(vec_coerce("foo", FALSE), list("foo")), "to `list`")
+})

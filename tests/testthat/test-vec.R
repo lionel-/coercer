@@ -62,6 +62,8 @@ test_that("vec() upcoerces to list", {
   expect_match(msgs[[1]], "`integer` to `list`")
   expect_match(msgs[[2]], "`numeric` to `list`")
   expect_match(msgs[[3]], "`character` to `list`")
+
+  expect_warning(expect_identical(vec(list(), TRUE), list(TRUE)), "to `list`")
 })
 
 test_that("vec() ignores NULL elements", {

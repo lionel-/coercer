@@ -163,9 +163,10 @@ def_method2("NULL", whichever(),
 # Relies on `vec[0]` semantics and `[<-`.
 def_method2("logical", whichever(),
   vec_coerce = function(from, to, ...) {
+    # Dispatch to default method if logical is not `NA`
     if (!identical(.dispatched$logical, NA)) {
-      classes <- names(.dispathed)
-      abort_dispatch2("vec_coerce", classes[[1]], classes[[2]])
+      info <- get_method2_info("vec_coerce", whichever(), whichever(), .dispatch_env)
+      return(info$method(from, to, ...))
     }
     if (!is_logical(from)) {
       return(from)
