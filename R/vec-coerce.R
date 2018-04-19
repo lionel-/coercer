@@ -122,30 +122,7 @@ def_method2("factor", "factor",
 )
 
 
-### Default coercions
-
-# Requires `[[` and `length()`method
-def_method2(whichever(), whichever(),
-  vec_coerce = function(from, to, ...) {
-    if (!is_vector(from) || !is_vector(to)) {
-      abort("Can't coerce a non-vector object to a list")
-    }
-    msg <- sprintf("Coercing `%s` to `list`", class(from)[[1]])
-    warn(msg, "rlang_vec_coerce_wng")
-
-    if (is_bare_vector(from)) {
-      return(vec_coerce_bare(from, "list"))
-    }
-
-    n <- length(from)
-    vec <- new_list(n, names = names(from))
-    for (i in seq_len(n)) {
-      vec[[i]] <- from[[i]]
-    }
-
-    vec
-  }
-)
+### Generic coercions
 
 # `NULL` upcoerces to an empty whichever type.
 # Relies on `vec[0]` semantics.
@@ -190,6 +167,30 @@ def_method2("logical", "NULL",
     } else {
       from
     }
+  }
+)
+
+# Upcoerce to list when all else fails.
+# Requires `[[` and `length()` methods
+def_method2(whichever(), whichever(),
+  vec_coerce = function(from, to, ...) {
+    if (!is_vector(from) || !is_vector(to)) {
+      abort("Can't coerce a non-vector object to a list")
+    }
+    msg <- sprintf("Coercing `%s` to `list`", class(from)[[1]])
+    warn(msg, "rlang_vec_coerce_wng")
+
+    if (is_bare_vector(from)) {
+      return(vec_coerce_bare(from, "list"))
+    }
+
+    n <- length(from)
+    vec <- new_list(n, names = names(from))
+    for (i in seq_len(n)) {
+      vec[[i]] <- from[[i]]
+    }
+
+    vec
   }
 )
 
