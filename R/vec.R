@@ -62,32 +62,60 @@ vec <- function(...) {
   # Dispatch environment
   env <- caller_env()
 
-  # Current strategy: first get return type with warnings disabled,
-  # then coerce everything to that
-  return_type <- reduce_type(xs, env)
+  # First get return type with warnings disabled, then coerce
+  # everything to that.
+  sentinel <- env()
+  return_type <- reduce_type(xs, env, sentinel)
+
+  # Check if whichever/whichever was invoked and warn only once
+  if (is_reference(return_type, sentinel)) {
+    warn("Coercing all elements to `list` because of incompatible types")
+    return_type <- list()
+    quiet <- TRUE
+  } else {
+    quiet <- FALSE
+  }
 
   # Expand with `[` method
   ns <- map_int(xs, length)
   out <- return_type[seq_len(sum(ns))]
 
-  end <- 0L
-  for (i in seq_len(n)) {
-    x <- dispatch2_("vec_coerce", xs[[i]], return_type, .env = env)
-    start <- end + 1L
-    end <- start + ns[[i]] - 1L
-    idx <- seq2(start, end)
-    out[idx] <- x
-  }
+  maybe_muffle_vec_coerce(quiet, {
+    end <- 0L
+    for (i in seq_len(n)) {
+      start <- end + 1L
+      end <- start + ns[[i]] - 1L
+      idx <- seq2(start, end)
+      out[idx] <- dispatch2_("vec_coerce", xs[[i]], return_type, .env = env)
+    }
+  })
 
   out
 }
 
-reduce_type <- function(xs, env) {
+reduce_type <- function(xs, env, sentinel) {
+  here <- current_env()
+
+  # Override the whichever/whichever method so we warn only once
+  env <- env(env)
+  def_method2(whichever(), whichever(), .env = env,
+    vec_coerce = function(from, to, ...) {
+      return_from(here, sentinel)
+    }
+  )
+
   muffle_vec_coerce(
     reduce(xs, function(x, y) {
       dispatch2_("vec_coerce", vec_empty(x), vec_empty(y), .env = env)
     })
   )
+}
+maybe_muffle_vec_coerce <- function(quiet, expr) {
+  if (quiet) {
+    muffle_vec_coerce(expr)
+  } else {
+    expr
+  }
 }
 
 # Relies on `vec[0]` semantics
