@@ -181,6 +181,18 @@ def_method2("logical", whichever(),
   }
 )
 
+# Essentially equivalent to NULL/whichever but we need a
+# specialisation to disambiguate with logical/whichever
+def_method2("logical", "NULL",
+  vec_coerce = function(from, to, ...) {
+    if (is_null(from)) {
+      lgl()
+    } else {
+      from
+    }
+  }
+)
+
 
 #' Muffle vector coercion warnings
 #'

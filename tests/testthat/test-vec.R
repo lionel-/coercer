@@ -89,3 +89,8 @@ test_that("`NA` to list() does not warn", {
   )
   expect_length(msgs, 2)
 })
+
+test_that("vec() handles logical + NA via logical/NULL specialisation", {
+  expect_identical(vec(TRUE, NA), c(TRUE, NA))
+  expect_identical(vec(NA, TRUE), c(NA, TRUE))
+})
