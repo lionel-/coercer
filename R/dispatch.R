@@ -208,27 +208,31 @@ get_method2_info <- function(generic, class1, class2, env = caller_env()) {
     env <- env_parent(env)
   }
 
+  method <- NULL
+
   star_c1 <- wildcards[[class1]]
   star_c2 <- wildcards[[class2]]
+  star_star <- wildcards[["*"]]
+
   if (!is_null(star_c1)) {
     if (!is_null(star_c2)) {
       msg <- "Ambiguous `whichever()` methods for classes `%s` and `%s`"
       abort(sprintf(msg, class1, class2))
     }
     classes[[2]] <- whichever()
-    return(new_method_info(classes, star_c1))
-  }
-  if (!is_null(star_c2)) {
+    method <- star_c1
+  } else if (!is_null(star_c2)) {
     classes[[1]] <- whichever()
-    return(new_method_info(classes, star_c2))
+    method <- star_c2
+  } else if (!is_null(star_star)) {
+    method <- star_star
   }
 
-  star_star <- wildcards[["*"]]
-  if (!is_null(star_star)) {
-    return(new_method_info(classes, star_star))
+  if (is_null(method)) {
+    NULL
+  } else {
+    new_method_info(classes, method)
   }
-
-  NULL
 }
 
 new_method_info <- function(classes, method) {
