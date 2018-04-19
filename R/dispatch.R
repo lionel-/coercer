@@ -173,7 +173,7 @@ get_method2_info <- function(generic, class1, class2, env = caller_env()) {
     abort("Object class does not have length")
   }
 
-  classes <- sort.int(c(class1[[1]], class2[[1]]), method = "radix")
+  classes <- sort_bare(c(class1[[1]], class2[[1]]))
   class1 <- classes[[1]]
   class2 <- classes[[2]]
 
@@ -247,10 +247,9 @@ def_method2 <- function(.class1, .class2, ..., .env = caller_env()) {
     is_string(.class2)
   )
 
-  # Sort the classes (with radix method for C collation) to enforce
-  # commutativity of binary methods. Should commutativity be a
-  # property of the generic instead?
-  classes <- sort.int(c(.class1, .class2), method = "radix")
+  # Sort the classes to enforce commutativity of binary methods.
+  # Should commutativity be a property of the generic instead?
+  classes <- sort_bare(c(.class1, .class2))
   c1 <- classes[[1]]
   c2 <- classes[[2]]
 
