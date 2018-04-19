@@ -129,7 +129,7 @@ def_method2("factor", "factor",
 def_method2("NULL", whichever(),
   vec_coerce = function(from, to, ...) {
     if (is_null(from)) {
-      .dispatched[[whichever()]][0]
+      vec_empty(.dispatched[[whichever()]])
     } else {
       from
     }
@@ -152,7 +152,7 @@ def_method2("logical", whichever(),
     # FIXME: Do we want `vec[na_int]` instead? This would upcoerce
     # `NA` to `list(NULL)`: `.dispatched[[whichever()]][na_int]`
 
-    whichever <- .dispatched[[whichever()]][0]
+    whichever <- vec_empty(.dispatched[[whichever()]])
     whichever[1] <- NA
     whichever
   }

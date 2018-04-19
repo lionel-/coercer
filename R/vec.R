@@ -90,10 +90,11 @@ reduce_type <- function(xs, env) {
   )
 }
 
-vec_empty <- function(x) {
-  if (identical(x, NA)) {
+# Relies on `vec[0]` semantics
+vec_empty <- function(vec) {
+  if (identical(vec, NA)) {
     NULL
   } else {
-    x[0]
+    vec[0]
   }
 }
