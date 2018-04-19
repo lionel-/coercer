@@ -36,17 +36,27 @@ c(1, 2L, TRUE)
 # However it supports more types and is extensible:
 foo <- factor("foo")
 vec(foo, foo)
+c(foo, foo)
 
 # Warnings are consistently thrown when information is lost because
 # of coercions:
 vec(foo, "bar")
+c(foo, "bar")
+
+# Or when coercion is dubious:
+foobar <- factor(c("foo", "bar"))
+vec(foo, foobar, foo)
+c(foo, foobar, foo)
 
 # NA is always promoted to whichever type
-fct <- factor(c("foo", "bar"))
-vec(fct, NA)
+vec(foo, NA)
+c(foo, NA)
 
 # Incompatible types are promoted to list in order to preserve
 # information:
 vec(1L, TRUE, "foo")
-vec(fct, 1L)
+c(1L, TRUE, "foo")
+
+vec(foobar, 1L)
+c(foobar, 1L)
 }
